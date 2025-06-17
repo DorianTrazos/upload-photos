@@ -1,12 +1,16 @@
-// const fs = require('fs');
-// const path = require('path');
-// const usersFile = path.resolve(__dirname, '../../data/users.json');
+// const { uploadImage } = require('../../config/cloudinary');
 
-// const usersController = {};
+const usersController = {};
 
-// usersController.getAllUsers = (req, res) => {
-//   fs.readFile(usersFile, (err, data) => {
-//     if (err) return res.status(500).json({ error: 'Error reading user file ' });
-//     return res.json(JSON.parse(data));
-//   });
-// };
+usersController.createUser = async (req, res) => {
+  console.log(req.body);
+
+  const { name } = req.body;
+  console.log(req.files?.image);
+
+  if (!name) return res.status(400).json({ message: 'name is required' });
+
+  res.end();
+};
+
+module.exports = usersController;
