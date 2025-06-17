@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const cloudinary = require('../../config/cloudinary');
 
 const usersController = {};
 
@@ -14,29 +15,35 @@ usersController.createUser = async (req, res) => {
     if (!name) return res.status(400).json({ message: 'Falta el nombre' });
     if (!image) return res.status(400).json({ message: 'Falta la imagen' });
 
-    // Carpeta donde guardar
+    // Crear carpeta si no existe
     const uploadDir = path.join(__dirname, '../uploads');
-
-    // Si no existe, la creamos
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
 
-    // Ruta final del archivo
-    const fileName = `${Date.now()}_${image.name}`;
-    const filePath = path.join(uploadDir, fileName);
+    // Guardar temporalmente
+    const tempPath = path.join(uploadDir, `${Date.now()}_${image.name}`);
+    await image.mv(tempPath);
 
-    // Guardar el archivo
-    await image.mv(filePath);
+    // Subir a Cloudinary
+    const result = await cloudinary.uploader.upload(tempPath, {
+      folder: 'users',
+      use_filename: true,
+      unique_filename: false
+    });
+
+    // Eliminar el archivo local
+    fs.unlinkSync(tempPath);
 
     res.json({
-      message: 'Imagen guardada correctamente',
-      fileName,
-      filePath: `/uploads/${fileName}`
+      message: 'Imagen subida correctamente a Cloudinary',
+      url: result.secure_url,
+      public_id: result.public_id,
+      name
     });
   } catch (error) {
-    console.error('Error al guardar imagen:', error);
-    res.status(500).json({ message: 'Error al guardar la imagen' });
+    console.error('Error al subir imagen:', error);
+    res.status(500).json({ message: 'Error al subir la imagen' });
   }
 };
 
