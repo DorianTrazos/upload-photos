@@ -23,3 +23,6 @@ app.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`);
   await connectDB();
 });
+
+// PORT="3000"
+// MONGODB_URL="mongodb+srv://dorianoriginaldesings:ow8uGojzVtq8R3UJ@mongo-trazos.5ahucgo.mongodb.net/users?retryWrites=true&w=majority&appName=mongo-trazos"
